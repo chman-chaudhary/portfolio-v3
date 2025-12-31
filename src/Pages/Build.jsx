@@ -44,15 +44,6 @@ const Build = () => {
       });
     };
 
-    const resetBoxes = () => {
-      gsap.set(".box-frame", {
-        width: "100%",
-        height: "100%",
-        x: 0,
-        y: 0,
-      });
-    };
-
     let mouseAttached = false;
 
     const tl = gsap.timeline({
@@ -62,9 +53,6 @@ const Build = () => {
         start: "top top",
         end: "+120%",
         scrub: true,
-
-        onEnter: () => resetBoxes(),
-        onEnterBack: () => resetBoxes(),
 
         onUpdate: (self) => {
           if (self.progress === 1 && !mouseAttached) {
