@@ -34,11 +34,11 @@ const Contact = () => {
   return (
     <div
       ref={containerRef}
-      className="relative h-screen w-full flex flex-col justify-between items-center overflow-hidden bg-[#121813] text-white pt-15 pb-4"
+      className="relative h-screen w-full flex flex-col justify-between items-center overflow-hidden bg-[#121813] text-[#f0f0f0] pt-15 pb-4"
     >
       <div
         ref={circleRef}
-        className="absolute top-[50%] left-[50%] -translate-[50%] bg-[#f9f9f9] border-2 rounded-full h-80 w-80"
+        className="absolute top-[50%] left-[50%] -translate-[50%] bg-[#f5f5f5] border-2 rounded-full h-80 w-80"
       />
 
       <h1 className="uppercase text-[2.5rem] leading-9 font-semibold text-justify px-8">

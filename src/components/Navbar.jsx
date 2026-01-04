@@ -4,9 +4,9 @@ import RecClock from "./RecClock";
 const Navbar = () => {
   return (
     <div
-      className="fixed top-0 left-0 z-10 uppercase w-full px-8 py-2 flex justify-between items-center font-semibold text-black"
+      className="fixed top-0 left-0 z-10 uppercase w-full px-8 py-2 flex justify-between items-center font-semibold text-[#1a1a1a]"
       style={{
-        color: "#f9f9f9",
+        color: "#f0f0f0",
         mixBlendMode: "difference",
       }}
     >

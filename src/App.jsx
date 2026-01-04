@@ -8,7 +8,7 @@ import WorkAndSkill from "./Pages/WorkAndSkill";
 
 function App() {
   return (
-    <div className="bg-[#f9f9f9]">
+    <div className="bg-[#f5f5f5] text-[#1a1a1a] scroll-smooth">
       <Navbar />
       <Hero />
       <About />

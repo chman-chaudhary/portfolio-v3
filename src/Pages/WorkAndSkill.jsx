@@ -1,9 +1,11 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import works from "../data/works";
 import capabilities from "../data/capabilities";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const WorkAndSkill = () => {
   const containerRef = useRef(null);
@@ -21,328 +23,198 @@ const WorkAndSkill = () => {
 
   useGSAP(
     (context, contextSafe) => {
-      gsap.registerPlugin(ScrollTrigger);
-
-      const total = capabilities.length;
       let maskDone = false;
-      let maskTween;
 
-      const tl = gsap.timeline({
+      gsap.set(progressRef.current, { width: "0%" });
+      gsap.set(lineRefs.current, { opacity: 1 });
+
+      // Create ONE master timeline to handle the pinning for everything
+      const mainTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "top -200%",
-          scrub: 2,
+          end: "+=600%", // Provides enough scroll "room" for all phases
+          scrub: 1,
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
-
-          onEnterBack: () => {
-            gsap.to(progressRef.current, {
-              transformOrigin: "left",
-              rotateZ: 0,
-              opacity: 100,
-              ease: "none",
-              duration: 0.2,
-            });
-          },
-
-          onLeaveBack: () => {
-            maskDone = false;
-          },
-          onUpdate: (self) => {
-            const progress = self.progress; // 0 → 1
-
-            const totalLines = lineRefs.current.length;
-            const barWidth = progress * totalLines;
-
-            lineRefs.current.forEach((line, i) => {
-              gsap.to(line, {
-                opacity: i <= barWidth ? 0 : i < barWidth + 1 ? "50%" : 1,
-                duration: 0.12,
-                ease: "none",
-              });
-            });
-
-            gsap.to(progressRef.current, {
-              width: `${progress * 100}%`,
-              ease: "none",
-              duration: 0,
-            });
-
-            const maskProgress = maskTween.progress();
-            if (maskProgress <= 0.18) {
-              maskDone = false;
-
-              const tlx = gsap.timeline();
-
-              // force-close every video immediately
-              videoRefs.current.forEach((v) =>
-                tlx.to(
-                  v,
-                  {
-                    height: 0,
-                    duration: 0.2,
-                    ease: "none",
-                  },
-                  0
-                )
-              );
-
-              // reset zoom + dark
-              imageRefs.current.forEach((img) =>
-                tlx.to(img, { scale: 1, duration: 0.5, ease: "power2.out" }, 0)
-              );
-
-              overlayRefs.current.forEach((ov) =>
-                tlx.to(
-                  ov,
-                  {
-                    backgroundColor: "rgba(0,0,0,0)",
-                    duration: 0.4,
-                    ease: "none",
-                  },
-                  0
-                )
-              );
-            } else {
-              maskDone = true;
-            }
-          },
         },
       });
 
-      maskTween = tl.to(".mask", {
+      mainTl.to(".mask", {
         top: "100%",
         ease: "none",
         duration: 2,
-        onComplete: () => {
-          maskDone = true;
+        onUpdate: function () {
+          if (progressRef.current) progressRef.current.style.width = "0%";
+          maskDone = this.progress() > 0.5;
         },
       });
 
-      tl.to(
+      mainTl.to(
         cardContainer.current,
         {
-          translateX: "-145%",
+          x: "-145%",
           ease: "none",
-          duration: 15,
+          duration: 10,
+          onUpdate: function () {
+            const p = this.progress(); // This 'p' is strictly 0 to 1 for THIS tween
+            const totalLines = lineRefs.current.length;
+
+            // SYNC: Width and Lines use the exact same 'p'
+            if (progressRef.current) {
+              progressRef.current.style.width = `${p * 100}%`;
+            }
+
+            const activeIndex = p * totalLines;
+
+            lineRefs.current.forEach((line, i) => {
+              if (!line) return;
+              let opacityValue = 1;
+              if (i < Math.floor(activeIndex)) {
+                opacityValue = 0;
+              } else if (i === Math.floor(activeIndex)) {
+                opacityValue = 0.5;
+              } else {
+                opacityValue = 1;
+              }
+              line.style.opacity = opacityValue;
+            });
+          },
         },
-        "=+1"
+        "+=0.5"
       );
 
-      cardRefs.current.forEach((card, i) => {
-        const video = videoRefs.current[i];
-        const image = imageRefs.current[i];
-        const overlay = overlayRefs.current[i];
+      mainTl.to(
+        workRef.current,
+        {
+          y: "-100%",
+          ease: "none",
+          duration: 3,
+        },
+        "+=0.5"
+      );
 
+      mainTl.to(
+        capRef.current,
+        {
+          height: "110vh",
+          scale: 1,
+          ease: "none",
+          duration: 3,
+        },
+        "-=1"
+      );
+
+      // 3. Capabilities Sequence
+      capabilities.forEach((_, i) => {
+        const step = gsap.timeline();
+        step.to(
+          itemsRef.current[i],
+          {
+            color: "black",
+            letterSpacing: "0.25em",
+            opacity: 1,
+            duration: 1,
+          },
+          0
+        );
+
+        step.to(
+          contentRef.current[i],
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1,
+          },
+          0
+        );
+
+        if (i > 0) {
+          step.to(
+            itemsRef.current[i - 1],
+            {
+              color: "#6b6b6b",
+              letterSpacing: "0.05em",
+              opacity: 0.35,
+              duration: 1,
+            },
+            0
+          );
+          step.to(
+            contentRef.current[i - 1],
+            {
+              autoAlpha: 0,
+              y: -20,
+              duration: 1,
+            },
+            0
+          );
+        }
+        mainTl.add(step, "+=0.8");
+      });
+
+      // Hover logic remains isolated
+      cardRefs.current.forEach((card, i) => {
         card.addEventListener(
           "mouseenter",
           contextSafe(() => {
             if (!maskDone) return;
-
-            // video expand
-            gsap.to(video, {
-              height: "auto",
-              duration: 0.2,
-              ease: "none",
-            });
-
-            // image zoom + darken
-            gsap.to(image, {
-              scale: 1.15,
-              duration: 0.5,
-              ease: "power2.out",
-            });
-
-            gsap.to(overlay, {
-              backgroundColor: "rgba(0,0,0,0.4)", // darker
+            gsap.to(videoRefs.current[i], { height: "auto", duration: 0.2 });
+            gsap.to(imageRefs.current[i], { scale: 1.15, duration: 0.5 });
+            gsap.to(overlayRefs.current[i], {
+              backgroundColor: "rgba(0,0,0,0.4)",
               duration: 0.4,
             });
           })
         );
-
         card.addEventListener(
           "mouseleave",
           contextSafe(() => {
-            if (!maskDone) return;
-
-            // video collapse
-            gsap.to(video, {
-              height: 0,
-              duration: 0.2,
-              ease: "none",
-            });
-
-            // image zoom reset
-            gsap.to(image, {
-              scale: 1,
-              duration: 0.5,
-              ease: "power2.out",
-            });
-
-            // restore brightness
-            gsap.to(overlay, {
+            gsap.to(videoRefs.current[i], { height: 0, duration: 0.2 });
+            gsap.to(imageRefs.current[i], { scale: 1, duration: 0.5 });
+            gsap.to(overlayRefs.current[i], {
               backgroundColor: "rgba(0,0,0,0)",
               duration: 0.4,
             });
           })
         );
       });
-
-      const progressTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top -10%",
-          end: "top -20%",
-          scrub: true,
-        },
-      });
-
-      progressTl.to(progressRef.current, {
-        transformOrigin: "left",
-        rotateZ: 5,
-        opacity: 0,
-        ease: "none",
-      });
-
-      tl.add(progressTl);
-
-      const transitionTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top -1%",
-          end: "+=100%",
-          scrub: true,
-          pin: true,
-        },
-      });
-
-      transitionTl.to(workRef.current, {
-        top: "-100%",
-        ease: "none",
-      });
-
-      transitionTl.to(
-        capRef.current,
-        {
-          height: "110vh",
-          ease: "none",
-          scale: 1,
-        },
-        "-=0.15"
-      );
-
-      tl.add(transitionTl);
-
-      const capTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top -2%",
-          end: `+=${total * 50}%`,
-          scrub: true,
-          pin: true,
-
-          // 🔑 THIS IS THE FIX
-          snap: {
-            snapTo: 1 / (total - 1),
-            duration: 0.2,
-            ease: "power2.out",
-          },
-        },
-      });
-
-      capabilities.forEach((_, i) => {
-        capTl.to(
-          itemsRef.current[i],
-          {
-            color: "#black",
-            letterSpacing: "0.25em",
-            fontWeight: "700",
-            opacity: 1,
-            duration: 0.01,
-          },
-          i
-        );
-
-        // Deactivate previous
-        if (i > 0) {
-          capTl.to(
-            itemsRef.current[i - 1],
-            {
-              color: "#6b6b6b",
-              letterSpacing: "0.05em",
-              fontWeight: "600",
-              opacity: 0.35,
-              duration: 0.01,
-            },
-            i
-          );
-        }
-
-        // Content in
-        capTl.to(
-          contentRef.current[i],
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.2,
-          },
-          i
-        );
-
-        // Content out
-        if (i > 0) {
-          capTl.to(
-            contentRef.current[i - 1],
-            {
-              autoAlpha: 0,
-              y: -20,
-              duration: 0.2,
-            },
-            i
-          );
-        }
-      });
-
-      tl.add(capTl);
     },
-    {
-      scope: containerRef,
-      dependencies: [containerRef, cardRefs, workRef, capRef],
-    }
+    { scope: containerRef }
   );
 
   return (
     <div
       ref={containerRef}
-      className="relative h-[101vh] w-full bg-[#121813] text-white"
+      className="relative h-screen w-full bg-[#121813] text-[#e6e6e6] overflow-hidden"
     >
+      {/* SECTION: WORK (Z-20) */}
       <section
         ref={workRef}
-        className="absolute top-0 left-0 z-20 w-full h-screen flex flex-col justify-center gap-y-6 px-8 bg-[#121813]"
+        className="absolute inset-0 z-20 w-full h-screen flex flex-col justify-center gap-y-6 px-8 bg-[#121813]"
       >
         <h2 className="text-lg">(Featured work)</h2>
-        <div ref={cardContainer} className="w-full flex gap-x-30">
+        <div
+          ref={cardContainer}
+          className="w-full flex gap-x-30 will-change-transform"
+        >
           {works.map((work, i) => (
             <div
               key={i}
               ref={(el) => (cardRefs.current[i] = el)}
-              className="relative h-120 w-80 flex flex-col justify-between items-center overflow-hidden text-lg text-center text-white py-4 shrink-0"
+              className="relative h-120 w-80 flex flex-col justify-between items-center overflow-hidden text-lg text-center text-[#e6e6e6] py-4 shrink-0"
             >
               <img
                 ref={(el) => (imageRefs.current[i] = el)}
                 src={work.img}
-                className="absolute top-0 left-0 w-full h-full z-0"
+                className="absolute top-0 left-0 w-full h-full z-0 object-cover"
               />
-
               <div className="mask absolute top-0 left-0 w-full h-full z-20 bg-black/10 backdrop-grayscale" />
-
               <div
                 ref={(el) => (overlayRefs.current[i] = el)}
-                className="absolute top-0 left-0 w-full h-full z-10 bg-black/0 transition-all"
-              ></div>
-
+                className="absolute top-0 left-0 w-full h-full z-10 bg-black/0"
+              />
               <video
                 ref={(el) => (videoRefs.current[i] = el)}
                 src="/sr.mp4"
@@ -351,7 +223,6 @@ const WorkAndSkill = () => {
                 autoPlay
                 loop
               />
-
               <h2 className="relative z-30">{work.title}</h2>
               <div className="relative z-30 uppercase leading-4">
                 <h2>{work.date}</h2>
@@ -369,7 +240,6 @@ const WorkAndSkill = () => {
                 className="w-px h-4 bg-white"
               />
             ))}
-
             <div
               ref={progressRef}
               className="absolute top-0 left-0 w-0 h-4 border border-white bg-transparent"
@@ -377,17 +247,18 @@ const WorkAndSkill = () => {
           </div>
         </div>
       </section>
+
+      {/* SECTION: CAPABILITIES (Z-10) */}
       <section
         ref={capRef}
-        className="absolute -bottom-[1%] left-0 z-10 h-[80vh] w-full bg-[#f9f9f9] text-black pt-28 pb-10 space-y-16 rounded-t-4xl scale-95"
+        className="absolute -bottom-[1%] left-0 z-10 h-[80vh] w-full bg-[#f5f5f5] text-[#1a1a1a] pt-28 pb-10 space-y-16 rounded-t-4xl scale-95 origin-bottom"
       >
         <h1 className="uppercase text-5xl font-bold text-center">How I work</h1>
         <div className="w-full flex px-16">
-          {/* LEFT */}
           <div className="w-1/3 flex flex-col justify-center gap-8">
             {capabilities.map((cap, i) => (
               <h2
-                key={cap.title}
+                key={i}
                 ref={(el) => (itemsRef.current[i] = el)}
                 className="text-5xl font-semibold uppercase opacity-40"
               >
@@ -395,25 +266,21 @@ const WorkAndSkill = () => {
               </h2>
             ))}
           </div>
-
-          {/* RIGHT */}
           <div className="w-2/3 flex items-center relative">
             {capabilities.map((cap, i) => (
               <div
-                key={cap.title}
+                key={i}
                 ref={(el) => (contentRef.current[i] = el)}
                 className="absolute max-w-xl opacity-0 translate-y-6"
               >
-                <p className="text-lg leading-relaxed text-black font-serif">
+                <p className="text-lg leading-relaxed text-[#1a1a1a] font-serif">
                   {cap.desc}
                 </p>
-
-                {/* SKILLS */}
                 <div className="mt-6 flex flex-wrap gap-2">
                   {cap.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="text-xs font-medium uppercase tracking-wide px-3 py-1 rounded-full bg-black/5 text-black/80"
+                      className="text-xs font-medium uppercase tracking-wide px-3 py-1 rounded-full bg-black/5 text-[#1a1a1a]/80"
                     >
                       {skill}
                     </span>

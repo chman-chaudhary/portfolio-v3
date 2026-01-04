@@ -61,7 +61,7 @@ const MiddleStrip = () => {
   return (
     <div
       ref={container}
-      className="absolute top-[50%] -translate-y-[50%] left-0 w-full bg-white uppercase text-xs font-semibold z-50"
+      className="absolute top-[50%] -translate-y-[50%] left-0 w-full -space-y-1 bg-white uppercase text-xs font-semibold z-10"
     >
       {/* Upper strip */}
       <div className="flex overflow-x-auto scrollbar-hide">

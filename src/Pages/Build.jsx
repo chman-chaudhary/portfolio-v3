@@ -1,127 +1,121 @@
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
-import { useRef } from "react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Build = () => {
   const container = useRef(null);
   const boxContainerRef = useRef(null);
 
   useGSAP(() => {
-    const boxContainer = boxContainerRef.current;
-    const boxes = gsap.utils.toArray(".box-frame");
-    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      const boxContainer = boxContainerRef.current;
+      const boxes = gsap.utils.toArray(".box-frame");
 
-    gsap.set(".mirror", { transformOrigin: "center bottom" });
-    gsap.to(".mirror", {
-      rotationX: "+=360",
-      ease: "none",
-      repeat: -1,
-      duration: 12,
-    });
-
-    const handleMove = (e) => {
-      const rect = boxContainer.getBoundingClientRect();
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
-
-      const maxX = rect.width - rect.width * 0.05;
-      const maxY = rect.height - rect.height * 0.05;
-
-      x = Math.max(rect.width * 0.05, Math.min(x, maxX));
-      y = Math.max(rect.height * 0.05, Math.min(y, maxY));
-
-      boxes.forEach((box, i) => {
-        const delayFactor = i * 0.3;
-
-        gsap.to(box, {
-          x: x - rect.width / 2,
-          y: y - rect.height / 2,
-          duration: 0.4 + delayFactor,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
+      gsap.set(".mirror", { transformOrigin: "center bottom" });
+      gsap.to(".mirror", {
+        rotationX: "+=360",
+        ease: "none",
+        repeat: -1,
+        duration: 12,
       });
-    };
 
-    let mouseAttached = false;
+      const handleMove = (e) => {
+        const rect = boxContainer.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container.current,
-        pin: true,
-        start: "top top",
-        end: "+120%",
-        scrub: true,
+        const maxX = rect.width - rect.width * 0.05;
+        const maxY = rect.height - rect.height * 0.05;
 
-        onUpdate: (self) => {
-          if (self.progress === 1 && !mouseAttached) {
-            boxContainer?.addEventListener("mousemove", handleMove);
-            mouseAttached = true;
-          }
-          if (self.progress < 1 && mouseAttached) {
-            boxContainer?.removeEventListener("mousemove", handleMove);
-            mouseAttached = false;
+        x = Math.max(rect.width * 0.05, Math.min(x, maxX));
+        y = Math.max(rect.height * 0.05, Math.min(y, maxY));
 
-            gsap.killTweensOf(boxes);
+        boxes.forEach((box, i) => {
+          const delayFactor = i * 0.3;
 
-            gsap.to(".box-frame", {
-              x: 0,
-              y: 0,
-              duration: 0.4,
-              ease: "power3.out",
-            });
-          }
+          gsap.to(box, {
+            x: x - rect.width / 2,
+            y: y - rect.height / 2,
+            duration: 0.4 + delayFactor,
+            ease: "power3.out",
+            overwrite: "auto",
+          });
+        });
+      };
+
+      let mouseAttached = false;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container.current,
+          pin: true,
+          start: "top top",
+          end: "+120%",
+          scrub: true,
+
+          onUpdate: (self) => {
+            if (self.progress === 1 && !mouseAttached) {
+              boxContainer.addEventListener("mousemove", handleMove);
+              mouseAttached = true;
+            }
+
+            if (self.progress < 1 && mouseAttached) {
+              boxContainer.removeEventListener("mousemove", handleMove);
+              mouseAttached = false;
+
+              gsap.killTweensOf(boxes);
+              gsap.to(".box-frame", {
+                x: 0,
+                y: 0,
+                duration: 0.4,
+                ease: "power3.out",
+              });
+            }
+          },
         },
-      },
-    });
+      });
 
-    tl.fromTo(
-      ".left-page",
-      { width: "100%", rotateY: 0 },
-      {
-        width: "20%",
-        rotateY: "-90",
-        duration: 2.5,
+      tl.fromTo(
+        ".left-page",
+        { width: "100%", rotateY: 0 },
+        { width: "20%", rotateY: "-90", duration: 2.5, ease: "none" },
+        0
+      );
+
+      tl.fromTo(
+        ".right-page",
+        { width: "20%", rotateY: "90", translateX: "0" },
+        { width: "79%", rotateY: "0", duration: 2.7, ease: "none" },
+        0
+      );
+
+      tl.to(".right-page", {
+        translateX: "-13.5%",
+        duration: 0.3,
         ease: "none",
-      },
-      0
-    );
+      });
 
-    tl.fromTo(
-      ".right-page",
-      { width: "20%", rotateY: "90", translateX: "0" },
-      {
-        width: "79%",
-        rotateY: "0",
-        duration: 2.7,
+      tl.from(".box-frame", {
+        width: "100%",
+        height: "100%",
         ease: "none",
-      },
-      0
-    );
-    tl.to(".right-page", { translateX: "-13.5%", duration: 0.3, ease: "none" });
+        stagger: 0.025,
+      });
+    }, container);
 
-    tl.from(".box-frame", {
-      width: "100%",
-      height: "100%",
-      ease: "none",
-      stagger: 0.025,
-    });
-
-    return () => {
-      boxContainer?.removeEventListener("mousemove", handleMove);
-      tl.scrollTrigger?.kill();
-      tl.kill();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
     <div
       ref={container}
-      className="relative w-screen h-auto text-white bg-[#121813] overflow-hidden space-y-10 pb-40"
+      className="relative w-screen h-auto text-[#f0f0f0] bg-[#121813] overflow-hidden space-y-10 pb-40"
     >
       <div className="relative w-full h-screen overflow-y-hidden">
-        <div className="absolute top-[2.5%] left-0 left-page text-[#f9f9f9] h-[95%] w-full flex flex-col justify-center items-center gap-[135px]">
+        <div className="absolute top-[2.5%] left-0 left-page text-[#f5f5f5] h-[95%] w-full flex flex-col justify-center items-center gap-[135px]">
           {Array.from({ length: 3 }).map((_, index) => (
             <RotatingTextEffect key={index} label="Build" />
           ))}
@@ -130,7 +124,13 @@ const Build = () => {
         {/* Right Page */}
         <div
           ref={boxContainerRef}
-          className="absolute top-[2.5%] right-0 h-[95%] right-page bg-zinc-500 text-white overflow-hidden origin-center"
+          style={{
+            backgroundImage: `url("./build-bg.png")`, // Fixed: wrapped in a string
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+          className="absolute top-[2.5%] right-0 h-[95%] right-page bg-zinc-500 text-[#f0f0f0] overflow-hidden origin-center"
         >
           <div className="relative h-full w-full flex items-center justify-center">
             {/* BOXES (new size ratios) */}
