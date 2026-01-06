@@ -58,7 +58,7 @@ const WorkAndSkill = () => {
           ease: "none",
           duration: 10,
           onUpdate: function () {
-            const p = this.progress(); // This 'p' is strictly 0 to 1 for THIS tween
+            const p = this.progress();
             const totalLines = lineRefs.current.length;
 
             // SYNC: Width and Lines use the exact same 'p'
@@ -217,7 +217,7 @@ const WorkAndSkill = () => {
               />
               <video
                 ref={(el) => (videoRefs.current[i] = el)}
-                src="/sr.mp4"
+                src={work.video}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] h-0 object-cover z-10"
                 muted
                 autoPlay

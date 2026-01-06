@@ -125,7 +125,7 @@ const Build = () => {
         <div
           ref={boxContainerRef}
           style={{
-            backgroundImage: `url("./build-bg.png")`, // Fixed: wrapped in a string
+            backgroundImage: `url("./build-bg.png")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
