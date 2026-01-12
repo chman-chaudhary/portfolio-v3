@@ -110,7 +110,8 @@ const Build = () => {
   }, []);
 
   return (
-    <div
+    <section
+      id="build"
       ref={container}
       className="relative w-screen h-auto text-[#f0f0f0] bg-[#121813] overflow-hidden space-y-10 pb-40"
     >
@@ -181,7 +182,7 @@ const Build = () => {
           experience feels intentional, reliable, and quietly impactful.
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

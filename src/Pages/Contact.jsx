@@ -32,7 +32,8 @@ const Contact = () => {
   }, []);
 
   return (
-    <div
+    <section
+      id="contact"
       ref={containerRef}
       className="relative h-screen w-full flex flex-col justify-between items-center overflow-hidden bg-[#121813] text-[#f0f0f0] pt-15 pb-4"
     >
@@ -49,7 +50,12 @@ const Contact = () => {
       </h1>
 
       <div className="flex flex-col justify-center items-center font-serif text-xl leading-6 tracking-tighter gap-y-6">
-        <h3>chaudharychaman1506@gmail.com</h3>
+        <a
+          href="mailto:chaudharychaman1506@gmail.com?subject=Let's%20Connect&body=Hi,%20I%20visited%20your%20portfolio!"
+          className="cursor-pointer hover:underline underline-offset-4 decoration-1"
+        >
+          chaudharychaman1506@gmail.com
+        </a>
         <div className="flex flex-col justify-center items-center uppercase">
           <h4>
             <span className="italic lowercase text-sm">services</span> UXUI
@@ -61,12 +67,18 @@ const Contact = () => {
             <span className="italic lowercase text-sm">phone</span>
             &nbsp;+91)84390&nbsp;68993&nbsp;&nbsp;
             <span className="italic lowercase text-sm">github</span>
-            &nbsp;@chman-chaudhary
+            &nbsp;
+            <a
+              href="https://github.com/chman-chaudhary"
+              className="cursor-pointer hover:underline underline-offset-4 decoration-1"
+            >
+              @chman-chaudhary
+            </a>
           </h4>
           <h4>©ALL CONTENT RESERVED BY Chaman Chaudhary</h4>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

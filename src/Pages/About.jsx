@@ -44,7 +44,8 @@ const About = () => {
   );
 
   return (
-    <div
+    <section
+      id="about"
       ref={container}
       className="relative h-[180vh] w-full px-8 flex flex-col justify-end items-start text-[#f0f0f0]"
     >
@@ -70,7 +71,7 @@ const About = () => {
         interact, how systems behave, and how small decisions affect performance
         and usability.
       </p>
-    </div>
+    </section>
   );
 };
 

@@ -63,7 +63,8 @@ const Hero = () => {
   );
 
   return (
-    <div
+    <section
+      id="hero"
       ref={container}
       className="relative h-screen w-full flex flex-col py-8"
     >
@@ -92,7 +93,7 @@ const Hero = () => {
           <MdKeyboardDoubleArrowDown className="scrollDownIcon inline-block text-lg ml-1" />
         </p>
       </div>
-    </div>
+    </section>
   );
 };
 

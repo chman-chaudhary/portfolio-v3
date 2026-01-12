@@ -4,10 +4,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import works from "../data/works";
 import capabilities from "../data/capabilities";
+import { useNavigate } from "react-router-dom";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const WorkAndSkill = () => {
+  const navigate = useNavigate();
+
   const containerRef = useRef(null);
   const workRef = useRef(null);
   const capRef = useRef(null);
@@ -185,7 +188,8 @@ const WorkAndSkill = () => {
   );
 
   return (
-    <div
+    <section
+      id="work"
       ref={containerRef}
       className="relative h-screen w-full bg-[#121813] text-[#e6e6e6] overflow-hidden"
     >
@@ -202,6 +206,7 @@ const WorkAndSkill = () => {
           {works.map((work, i) => (
             <div
               key={i}
+              onClick={() => navigate("/under-construction")}
               ref={(el) => (cardRefs.current[i] = el)}
               className="relative h-120 w-80 flex flex-col justify-between items-center overflow-hidden text-lg text-center text-[#e6e6e6] py-4 shrink-0"
             >
@@ -291,7 +296,7 @@ const WorkAndSkill = () => {
           </div>
         </div>
       </section>
-    </div>
+    </section>
   );
 };
 

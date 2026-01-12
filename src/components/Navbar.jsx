@@ -28,13 +28,13 @@ const Navbar = () => {
           </span>
         </button>
 
-        {["Work", "Contact"].map((item, i) => (
-          <button key={i} className="nav-btn">
+        {["work", "contact"].map((item, i) => (
+          <a href={`#${item}`} key={i} className="nav-btn">
             <span className="nav-text">
               <span className="uppercase">{item}</span>
               <span className="uppercase">{item}</span>
             </span>
-          </button>
+          </a>
         ))}
       </div>
     </div>
