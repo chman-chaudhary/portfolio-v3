@@ -82,14 +82,14 @@ const Build = () => {
         ".left-page",
         { width: "100%", rotateY: 0 },
         { width: "20%", rotateY: "-90", duration: 2.5, ease: "none" },
-        0
+        0,
       );
 
       tl.fromTo(
         ".right-page",
         { width: "20%", rotateY: "90", translateX: "0" },
         { width: "79%", rotateY: "0", duration: 2.7, ease: "none" },
-        0
+        0,
       );
 
       tl.to(".right-page", {
@@ -154,7 +154,7 @@ const Build = () => {
 
             {/* TEXT */}
             <div className="relative z-10 px-6 text-center">
-              <p className="uppercase text-base md:text-base tracking-wide text-nowrap">
+              <p className="uppercase text-sm md:text-base tracking-wide text-nowrap">
                 Thoughtfully built interactions that
                 <br />
                 respond, adapt, and endure.
@@ -163,9 +163,9 @@ const Build = () => {
           </div>
         </div>
       </div>
-      <div className="w-[90%] h-full flex justify-between items-start text-lg">
-        <div className="w-[12.5%]">(How I build)</div>
-        <div className="w-full">
+      <div className="w-full md:w-[90%] h-full flex flex-col md:flex-row justify-start md:justify-between items-center md:items-start text-lg px-8 md:px-0">
+        <div className="w-fit md:w-[12.5%]">(How I build)</div>
+        <div className="w-full text-justify">
           I build digital experiences by thinking in systems rather than
           isolated screens. Every project starts with structure — how components
           connect, how users move, and how motion supports understanding.

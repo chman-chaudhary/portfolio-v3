@@ -10,6 +10,8 @@ const About = () => {
 
   useGSAP(
     () => {
+      const isMobile = window.innerWidth < 768;
+
       const ctx = gsap.context(() => {
         gsap.to(container.current, {
           backgroundColor: "#121813",
@@ -26,7 +28,7 @@ const About = () => {
           ".line",
           { wordSpacing: "0.05em" },
           {
-            wordSpacing: "0.4em",
+            wordSpacing: isMobile ? "0.2em" : "0.4em",
             ease: "none",
             scrollTrigger: {
               trigger: container.current,
@@ -34,26 +36,43 @@ const About = () => {
               end: "top -60%",
               scrub: true,
             },
-          }
+          },
         );
       }, container);
 
       return () => ctx.revert();
     },
-    { scope: container }
+    { scope: container },
   );
 
   return (
     <section
       id="about"
       ref={container}
-      className="relative h-[180vh] w-full px-8 flex flex-col justify-end items-start text-[#f0f0f0]"
+      className="
+        relative
+        h-[140vh] md:h-[180vh]
+        w-full
+        px-4 sm:px-6 md:px-8
+        flex flex-col justify-end items-start
+        text-[#f0f0f0]
+      "
     >
-      <h1 className="w-full text-lg font-semibold text-center mb-4">
+      <h1 className="w-full text-sm sm:text-base md:text-lg font-semibold text-center mb-4">
         (Who we are)
       </h1>
 
-      <p className="uppercase text-5xl font-bold mb-8 text-justify leading-12 ml-8">
+      <p
+        className="
+          uppercase
+          text-base sm:text-2xl md:text-3xl lg:text-5xl
+          font-bold
+          mb-6 md:mb-8
+          text-justify
+          leading-tight sm:leading-snug md:leading-12
+          ml-0 sm:ml-4 md:ml-8
+        "
+      >
         <span className="line">As a BCA graduate and web developer,</span>
         <span className="line block">I enjoy working across the stack — </span>
         <span className="line block">from crafting interfaces with React </span>
@@ -65,7 +84,16 @@ const About = () => {
         <span className="line block">scalability, and solving.</span>
       </p>
 
-      <p className="w-[85%] mx-auto mb-16 text-lg font-serif text-[#f0f0f0]">
+      <p
+        className="
+          w-full sm:w-[90%] md:w-[85%]
+          mx-auto
+          mb-10 md:mb-16
+          text-xs sm:text-lg
+          font-serif
+          text-[#f0f0f0]
+        "
+      >
         I build web applications with intention, not just motion for the sake of
         motion. Beyond making interfaces look good, I focus on how users
         interact, how systems behave, and how small decisions affect performance

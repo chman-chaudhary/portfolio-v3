@@ -26,17 +26,17 @@ const WorkAndSkill = () => {
 
   useGSAP(
     (context, contextSafe) => {
+      const isMobile = window.innerWidth < 768;
       let maskDone = false;
 
       gsap.set(progressRef.current, { width: "0%" });
       gsap.set(lineRefs.current, { opacity: 1 });
 
-      // Create ONE master timeline to handle the pinning for everything
       const mainTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=600%", // Provides enough scroll "room" for all phases
+          end: "+=600%",
           scrub: 1,
           pin: true,
           pinSpacing: true,
@@ -57,14 +57,13 @@ const WorkAndSkill = () => {
       mainTl.to(
         cardContainer.current,
         {
-          x: "-145%",
+          x: isMobile ? "-800%" : "-145%",
           ease: "none",
           duration: 10,
           onUpdate: function () {
             const p = this.progress();
             const totalLines = lineRefs.current.length;
 
-            // SYNC: Width and Lines use the exact same 'p'
             if (progressRef.current) {
               progressRef.current.style.width = `${p * 100}%`;
             }
@@ -85,7 +84,7 @@ const WorkAndSkill = () => {
             });
           },
         },
-        "+=0.5"
+        "+=0.5",
       );
 
       mainTl.to(
@@ -95,7 +94,7 @@ const WorkAndSkill = () => {
           ease: "none",
           duration: 3,
         },
-        "+=0.5"
+        "+=0.5",
       );
 
       mainTl.to(
@@ -106,10 +105,9 @@ const WorkAndSkill = () => {
           ease: "none",
           duration: 3,
         },
-        "-=1"
+        "-=1",
       );
 
-      // 3. Capabilities Sequence
       capabilities.forEach((_, i) => {
         const step = gsap.timeline();
         step.to(
@@ -120,7 +118,7 @@ const WorkAndSkill = () => {
             opacity: 1,
             duration: 1,
           },
-          0
+          0,
         );
 
         step.to(
@@ -130,7 +128,7 @@ const WorkAndSkill = () => {
             y: 0,
             duration: 1,
           },
-          0
+          0,
         );
 
         if (i > 0) {
@@ -142,7 +140,7 @@ const WorkAndSkill = () => {
               opacity: 0.35,
               duration: 1,
             },
-            0
+            0,
           );
           step.to(
             contentRef.current[i - 1],
@@ -151,13 +149,12 @@ const WorkAndSkill = () => {
               y: -20,
               duration: 1,
             },
-            0
+            0,
           );
         }
         mainTl.add(step, "+=0.8");
       });
 
-      // Hover logic remains isolated
       cardRefs.current.forEach((card, i) => {
         card.addEventListener(
           "mouseenter",
@@ -169,7 +166,7 @@ const WorkAndSkill = () => {
               backgroundColor: "rgba(0,0,0,0.4)",
               duration: 0.4,
             });
-          })
+          }),
         );
         card.addEventListener(
           "mouseleave",
@@ -180,11 +177,11 @@ const WorkAndSkill = () => {
               backgroundColor: "rgba(0,0,0,0)",
               duration: 0.4,
             });
-          })
+          }),
         );
       });
     },
-    { scope: containerRef }
+    { scope: containerRef },
   );
 
   return (
@@ -193,10 +190,9 @@ const WorkAndSkill = () => {
       ref={containerRef}
       className="relative h-screen w-full bg-[#121813] text-[#e6e6e6] overflow-hidden"
     >
-      {/* SECTION: WORK (Z-20) */}
       <section
         ref={workRef}
-        className="absolute inset-0 z-20 w-full h-screen flex flex-col justify-center gap-y-6 px-8 bg-[#121813]"
+        className="absolute inset-0 z-20 w-full h-screen flex flex-col justify-center gap-y-6 px-9 lg:px-8 bg-[#121813]"
       >
         <h2 className="text-lg">(Featured work)</h2>
         <div
@@ -208,7 +204,7 @@ const WorkAndSkill = () => {
               key={i}
               onClick={() => navigate("/under-construction")}
               ref={(el) => (cardRefs.current[i] = el)}
-              className="relative h-120 w-80 flex flex-col justify-between items-center overflow-hidden text-lg text-center text-[#e6e6e6] py-4 shrink-0"
+              className="relative h-160 w-90 md:w-80 md:h-120 flex flex-col justify-between items-center overflow-hidden text-lg text-center text-[#e6e6e6] py-4 shrink-0"
             >
               <img
                 ref={(el) => (imageRefs.current[i] = el)}
@@ -253,32 +249,33 @@ const WorkAndSkill = () => {
         </div>
       </section>
 
-      {/* SECTION: CAPABILITIES (Z-10) */}
       <section
         ref={capRef}
-        className="absolute -bottom-[1%] left-0 z-10 h-[80vh] w-full bg-[#f5f5f5] text-[#1a1a1a] pt-28 pb-10 space-y-16 rounded-t-4xl scale-95 origin-bottom"
+        className="absolute -bottom-[1%] left-0 z-10 h-[80vh] w-full bg-[#f5f5f5] text-[#1a1a1a] flex flex-col justify-start md:justify-center pt-40 md:pt-28 gap-y-8 md:gap-y-0 rounded-t-4xl scale-95 origin-bottom"
       >
-        <h1 className="uppercase text-5xl font-bold text-center">How I work</h1>
-        <div className="w-full flex px-16">
-          <div className="w-1/3 flex flex-col justify-center gap-8">
+        <h1 className="h-fit uppercase text-5xl font-bold text-center">
+          How I work
+        </h1>
+        <div className="w-full h-full flex flex-col md:flex-row justify-start items-center gap-y-16 px-8 md:px-16 gap-5">
+          <div className="w-full md:w-1/3 flex flex-col justify-center items-center md:items-start gap-8">
             {capabilities.map((cap, i) => (
               <h2
                 key={i}
                 ref={(el) => (itemsRef.current[i] = el)}
-                className="text-5xl font-semibold uppercase opacity-40"
+                className="text-xl md:text-5xl font-semibold uppercase opacity-40"
               >
                 {cap.title}
               </h2>
             ))}
           </div>
-          <div className="w-2/3 flex items-center relative">
+          <div className="relative h-full w-full md:w-2/3 flex items-start md:items-center">
             {capabilities.map((cap, i) => (
               <div
                 key={i}
                 ref={(el) => (contentRef.current[i] = el)}
                 className="absolute max-w-xl opacity-0 translate-y-6"
               >
-                <p className="text-lg leading-relaxed text-[#1a1a1a] font-serif">
+                <p className="text-basemd:text-lg leading-relaxed text-[#1a1a1a] font-serif">
                   {cap.desc}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">

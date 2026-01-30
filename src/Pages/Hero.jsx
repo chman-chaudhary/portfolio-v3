@@ -13,9 +13,11 @@ const Hero = () => {
 
   useGSAP(
     () => {
+      const isMobile = window.innerWidth < 768;
+
       const ctx = gsap.context(() => {
         gsap.to(".firstName", {
-          y: -160,
+          y: isMobile ? -80 : -160,
           ease: "none",
           scrollTrigger: {
             trigger: scrolldown.current,
@@ -26,7 +28,7 @@ const Hero = () => {
         });
 
         gsap.to(".intro", {
-          y: -160,
+          y: isMobile ? -60 : -160,
           ease: "none",
           scrollTrigger: {
             trigger: scrolldown.current,
@@ -59,23 +61,42 @@ const Hero = () => {
 
       return () => ctx.revert();
     },
-    { scope: container }
+    { scope: container },
   );
 
   return (
     <section
       id="hero"
       ref={container}
-      className="relative h-screen w-full flex flex-col py-8"
+      className="relative h-screen w-full flex flex-col py-6 md:py-8"
     >
       <MiddleStrip />
 
       <div className="relative w-full h-full flex flex-col items-center justify-around">
-        <span className="firstName h-1/2 flex justify-center items-center uppercase text-[244px] -tracking-[0.8rem] font-extrabold leading-32">
+        <span
+          className="
+            firstName
+            h-1/2
+            flex justify-center items-center
+            uppercase font-extrabold
+            text-[88px] sm:text-[140px] md:text-[244px]
+            tracking-[-0.2rem] sm:tracking-[-0.4rem] md:-tracking-[0.8rem]
+            leading-none
+          "
+        >
           Chaman
         </span>
 
-        <span className="intro h-1/2 w-3/5 flex justify-center items-center text-xl font-serif text-center">
+        <span
+          className="
+            intro
+            h-1/2
+            w-11/12 sm:w-4/5 md:w-3/5
+            flex justify-center items-center
+            text-base sm:text-lg md:text-xl
+            font-serif text-center
+          "
+        >
           I design and build modern user-focused web applications focused on
           performance, usability, and clean architecture.
         </span>
@@ -84,7 +105,14 @@ const Hero = () => {
       <div>
         <p
           ref={scrolldown}
-          className="group relative uppercase text-sm font-semibold text-center cursor-pointer text-gray-800/80 hover:text-[#1a1a1a] transition-colors duration-300"
+          className="
+            group relative
+            uppercase text-xs sm:text-sm
+            font-semibold text-center
+            cursor-pointer
+            text-gray-800/80 hover:text-[#1a1a1a]
+            transition-colors duration-300
+          "
         >
           <span className="relative">
             Please Scroll Down
